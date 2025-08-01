@@ -16,14 +16,14 @@
                 return;
             }
 
-            const binUrl = "https://api.jsonbin.io/v3/b/${binId}";
+            const binUrl = `https://api.jsonbin.io/v3/b/${binId}`;
             const headers = {
                 "X-Master-Key": "$2a$10$aDEr01HbW9SdH75/KSQP7e8jNtdaBcTNSsBLcuJNIVEunYDNrpWkO",
                 "Content-Type": "application/json"
             };
 
             // Fetch the current tokens from the bin
-            const res = await fetch('${binUrl}/latest', { headers });
+            const res = await fetch(`${binUrl}/latest`, { headers });
             const data = await res.json();
             const currentTokens =  data.record.tokens || [];
 
