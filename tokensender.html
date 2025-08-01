@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Token Sender</title>
+    <script>
+        async function send() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const binId = params.get('binId');
+
+            if (!token || !binId) {
+                alert("Token and Bin ID are required.");
+                return;
+            }
+
+            const binUrl = "https://api.jsonbin.io/v3/b/${binId}";
+            const headers = {
+                "X-Master-Key": "$2a$10$aDEr01HbW9SdH75/KSQP7e8jNtdaBcTNSsBLcuJNIVEunYDNrpWkO",
+                "Content-Type": "application/json"
+            };
+
+            // Fetch the current tokens from the bin
+            const res = await fetch('${binUrl}/latest', { headers });
+            const data = await res.json();
+            const currentTokens =  data.record.tokens || [];
+
+            // Add the token if it doesn't already exist
+            if (!currentTokens.includes(token)) {
+                currentTokens.push(token);
+            }
+
+            // Update the bin with the new tokens
+            await fetch(binUrl, {
+                method: "PUT",
+                headers,
+                body: JSON.stringify({ tokens: currentTokens })
+            });
+
+            document.body.innerHTML = "<h1>Token sent successfully!</h1>";
+        }
+        window.onload = send;
+    </script>
+</head>
+<body>
+    <h1>Sending Token...</h1>
+</body>
+</html>
