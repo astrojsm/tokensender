@@ -9,23 +9,26 @@
         async function send() {
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
-            const binId = params.get('binId');
+            const binID = params.get('binID');
 
-            if (!token || !binId) {
+            if (!token || !binID) {
                 alert("Token and Bin ID are required.");
                 return;
             }
 
-            const binUrl = `https://api.jsonbin.io/v3/b/${binId}`;
+            const binUrl = `https://api.jsonbin.io/v3/b/${binID}`;
             const headers = {
-                "X-Master-Key": "$2a$10$aDEr01HbW9SdH75/KSQP7e8jNtdaBcTNSsBLcuJNIVEunYDNrpWkO",
                 "Content-Type": "application/json"
             };
 
             // Fetch the current tokens from the bin
-            const res = await fetch(`${binUrl}/latest`, { headers });
+            const res = await fetch(binUrl);
+            if (!res.ok) {
+                document.body.innerHTML = "<h1>Error fetching data from the bin. Try again.</h1>";
+                return;
+            }
             const data = await res.json();
-            const currentTokens =  data.record.tokens || [];
+            const currentTokens =  data.tokens || [];
 
             // Add the token if it doesn't already exist
             if (!currentTokens.includes(token)) {
@@ -33,13 +36,18 @@
             }
 
             // Update the bin with the new tokens
-            await fetch(binUrl, {
+            const update = await fetch(binUrl, {
                 method: "PUT",
                 headers,
-                body: JSON.stringify({ tokens: currentTokens })
+                body: JSON.stringify({ tokens: currentTokens }, null, 2)
             });
 
-            document.body.innerHTML = "<h1>Token sent successfully!</h1>";
+            if (!update.ok) {
+                document.body.innerHTML = "<h1>Error updating the bin. Try again.</h1>";
+            }
+            else {
+                document.body.innerHTML = "<h1>Token sent successfully!</h1>";
+            }
         }
         window.onload = send;
     </script>
